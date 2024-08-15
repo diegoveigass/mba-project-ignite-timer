@@ -1,10 +1,10 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 export const HeaderContainer = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`;
+`
 
 export const NavMenu = styled.nav`
   display: flex;
@@ -33,4 +33,4 @@ export const NavMenu = styled.nav`
       color: ${props => props.theme['green-500']};
     }
   }
-`;
+`
