@@ -115,9 +115,7 @@ export function Home() {
           interruptedDate: new Date(),
         }
       } else {
-        return {
-          ...cycle,
-        }
+        return cycle
       }
     }))
 
