@@ -4,18 +4,16 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import {
-  CountdownContainer,
-  FormContainer,
-  HomeContainer,
-  MinutesAmountInput,
-  Separator,
-  StartCountdownButton,
-  StopCountdownButton,
-  TaskInput,
-} from './styles'
 import { useEffect, useState } from 'react'
 import { differenceInSeconds } from 'date-fns'
+
+import {
+  HomeContainer,
+  StartCountdownButton,
+  StopCountdownButton,
+} from './styles'
+import { NewCycleForm } from './components/new-cycle-form'
+import { Countdown } from './components/countdown'
 
 const newCycleFormSchema = z.object({
   task: z.string().min(1, 'Informe a tarefa'),
@@ -51,8 +49,6 @@ export function Home() {
   const totalSeconds = activeCycle
     ? activeCycle.minutesAmount * 60
     : 0
-
-  console.log(cycles)
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>
@@ -142,45 +138,9 @@ export function Home() {
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)}>
-        <FormContainer>
-          <label htmlFor="task">Vou trabalhar em</label>
-          <TaskInput
-            {...register('task')}
-            type="text"
-            id="task"
-            list="task-suggestions"
-            disabled={!!activeCycle}
-            placeholder="De um nome para o seu projeto"
-          />
+        <NewCycleForm />
 
-          <datalist id="task-suggestions">
-            <option value="Projeto 1" />
-            <option value="Projeto 2" />
-            <option value="Projeto 3" />
-          </datalist>
-
-          <label htmlFor="minutesAmount">durante</label>
-          <MinutesAmountInput
-            {...register('minutesAmount', { valueAsNumber: true })}
-            type="number"
-            id="minutesAmount"
-            placeholder="00"
-            disabled={!!activeCycle}
-            max={60}
-            // min={5}
-            // step={5}
-          />
-
-          <span>minutos.</span>
-        </FormContainer>
-
-        <CountdownContainer>
-          <span>{minutes[0]}</span>
-          <span>{minutes[1]}</span>
-          <Separator>:</Separator>
-          <span>{seconds[0]}</span>
-          <span>{seconds[1]}</span>
-        </CountdownContainer>
+        <Countdown />
 
         {activeCycle
           ? (
