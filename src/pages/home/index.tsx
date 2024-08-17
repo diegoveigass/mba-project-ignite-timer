@@ -15,13 +15,6 @@ import {
 import { NewCycleForm } from './components/new-cycle-form'
 import { Countdown } from './components/countdown'
 
-const newCycleFormSchema = z.object({
-  task: z.string().min(1, 'Informe a tarefa'),
-  minutesAmount: z.number(),
-})
-
-type NewCycleFormData = z.infer<typeof newCycleFormSchema>
-
 interface Cycle {
   id: string
   task: string
@@ -34,55 +27,8 @@ interface Cycle {
 export function Home() {
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
-
-  const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
-    resolver: zodResolver(newCycleFormSchema),
-    defaultValues: {
-      task: '',
-      minutesAmount: 0,
-    },
-  })
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
-
-  const totalSeconds = activeCycle
-    ? activeCycle.minutesAmount * 60
-    : 0
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>
-
-    if (activeCycle) {
-      interval = setInterval(() => {
-        const secondsDifference = differenceInSeconds(
-          new Date(),
-          activeCycle.startDate)
-
-        if (secondsDifference >= totalSeconds) {
-          setCycles((state) => state.map((cycle) => {
-            if (cycle.id === activeCycleId) {
-              return {
-                ...cycle,
-                finishedDate: new Date(),
-              }
-            } else {
-              return cycle
-            }
-          }))
-          clearInterval(interval)
-
-          setActiveCycleId(null)
-        } else {
-          setAmountSecondsPassed(secondsDifference)
-        }
-      }, 1000)
-    }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [activeCycle, totalSeconds, activeCycleId])
 
   function handleCreateNewCycle(data: NewCycleFormData) {
     const { task, minutesAmount } = data
@@ -140,7 +86,11 @@ export function Home() {
       <form onSubmit={handleSubmit(handleCreateNewCycle)}>
         <NewCycleForm />
 
-        <Countdown />
+        <Countdown
+          activeCycle={activeCycle}
+          setCycles={setCycles}
+          activeCycleId={activeCycleId}
+        />
 
         {activeCycle
           ? (
