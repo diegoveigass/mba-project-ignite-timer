@@ -19,9 +19,7 @@ import { differenceInSeconds } from 'date-fns'
 
 const newCycleFormSchema = z.object({
   task: z.string().min(1, 'Informe a tarefa'),
-  minutesAmount: z.number()
-    .min(5, 'O ciclo precisa ser de no mínimo 60 minutos')
-    .max(60, 'O ciclo precisa ser de no máximo 60 minutos'),
+  minutesAmount: z.number(),
 })
 
 type NewCycleFormData = z.infer<typeof newCycleFormSchema>
@@ -32,6 +30,7 @@ interface Cycle {
   minutesAmount: number
   startDate: Date
   interruptedDate?: Date
+  finishedDate?: Date
 }
 
 export function Home() {
@@ -49,23 +48,45 @@ export function Home() {
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
+  const totalSeconds = activeCycle
+    ? activeCycle.minutesAmount * 60
+    : 0
+
+  console.log(cycles)
+
   useEffect(() => {
-    let interval: ReturnType<typeof setTimeout>
+    let interval: ReturnType<typeof setInterval>
 
     if (activeCycle) {
       interval = setInterval(() => {
-        setAmountSecondsPassed(
-          differenceInSeconds(
-            new Date(),
-            activeCycle.startDate),
-        )
+        const secondsDifference = differenceInSeconds(
+          new Date(),
+          activeCycle.startDate)
+
+        if (secondsDifference >= totalSeconds) {
+          setCycles((state) => state.map((cycle) => {
+            if (cycle.id === activeCycleId) {
+              return {
+                ...cycle,
+                finishedDate: new Date(),
+              }
+            } else {
+              return cycle
+            }
+          }))
+          clearInterval(interval)
+
+          setActiveCycleId(null)
+        } else {
+          setAmountSecondsPassed(secondsDifference)
+        }
       }, 1000)
     }
 
     return () => {
       clearInterval(interval)
     }
-  }, [activeCycle])
+  }, [activeCycle, totalSeconds, activeCycleId])
 
   function handleCreateNewCycle(data: NewCycleFormData) {
     const { task, minutesAmount } = data
@@ -83,10 +104,6 @@ export function Home() {
 
     reset()
   }
-
-  const totalSeconds = activeCycle
-    ? activeCycle.minutesAmount * 60
-    : 0
 
   const currentSeconds = activeCycle
     ? totalSeconds - amountSecondsPassed
@@ -122,8 +139,6 @@ export function Home() {
     setActiveCycleId(null)
   }
 
-  console.log(cycles)
-
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)}>
@@ -152,8 +167,8 @@ export function Home() {
             placeholder="00"
             disabled={!!activeCycle}
             max={60}
-            min={5}
-            step={5}
+            // min={5}
+            // step={5}
           />
 
           <span>minutos.</span>
