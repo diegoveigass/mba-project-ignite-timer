@@ -1,6 +1,11 @@
 import { FormContainer, MinutesAmountInput, TaskInput } from './styles'
+import { useAppSelector } from '../../../../lib/redux/hooks'
+import { useFormContext } from 'react-hook-form'
 
 export function NewCycleForm() {
+  const { register } = useFormContext()
+  const activeCycle = useAppSelector((state) => state.cycle.activeCycle)
+
   return (
     <FormContainer>
       <label htmlFor="task">Vou trabalhar em</label>
