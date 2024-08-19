@@ -14,9 +14,17 @@ export interface CycleState {
   activeCycle: Cycle | null
 }
 
+const cyclesStoraged = localStorage.getItem('@app/cycles') !== null
+  ? JSON.parse(localStorage.getItem('@app/cycles')!) as Cycle[]
+  : []
+
+const activeCycleStoraged = localStorage.getItem('@app/active-cycle') !== null
+  ? JSON.parse(localStorage.getItem('@app/active-cycle')!) as Cycle
+  : null
+
 const initialState = {
-  cycles: [],
-  activeCycle: null,
+  cycles: cyclesStoraged,
+  activeCycle: activeCycleStoraged,
 } as CycleState
 
 export const cycleSlice = createSlice({
@@ -26,6 +34,11 @@ export const cycleSlice = createSlice({
     createCycle: (state, action: PayloadAction<Cycle>) => {
       state.cycles.push(action.payload)
       state.activeCycle = action.payload
+
+      localStorage.setItem('@app/cycles', JSON.stringify(state.cycles))
+      localStorage.setItem(
+        '@app/active-cycle', JSON.stringify(state.activeCycle),
+      )
     },
     markCurrentCycleAsInterrupted: (state) => {
       const cycleToInterruptIndex =
@@ -38,6 +51,10 @@ export const cycleSlice = createSlice({
 
       state.activeCycle = null
 
+      localStorage.setItem('@app/cycles', JSON.stringify(state.cycles))
+      localStorage.setItem(
+        '@app/active-cycle', JSON.stringify(state.activeCycle),
+      )
       return state
     },
     markCurrentCycleAsFinished: (state) => {
@@ -49,10 +66,14 @@ export const cycleSlice = createSlice({
       state.cycles[cycleToFinishingIndex].finishedDate =
        new Date().toISOString()
 
+      localStorage.setItem('@app/cycles', JSON.stringify(state.cycles))
       return state
     },
     setActiveCycle: (state, action: PayloadAction<Cycle | null>) => {
       state.activeCycle = action.payload
+      localStorage.setItem(
+        '@app/active-cycle', JSON.stringify(state.activeCycle),
+      )
     },
   },
 })

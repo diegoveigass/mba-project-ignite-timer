@@ -31,6 +31,8 @@ export function Home() {
 
   const activeCycle = useAppSelector(state => state.cycle.activeCycle)
 
+  console.log(activeCycle)
+
   const newCycleForm = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormSchema),
     defaultValues: {
