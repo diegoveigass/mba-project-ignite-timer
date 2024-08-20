@@ -17,7 +17,6 @@ import {
   Cycle,
   markCurrentCycleAsInterrupted,
 } from '../../lib/redux/slices/cycle-slice'
-import { setAmountSecondsPassed } from '../../lib/redux/slices/countdown-slice'
 
 const newCycleFormSchema = z.object({
   task: z.string().min(1, 'Informe a tarefa'),
@@ -60,7 +59,7 @@ export function Home() {
 
   function handleInterruptCycle() {
     dispatch(markCurrentCycleAsInterrupted())
-    dispatch(setAmountSecondsPassed(0))
+    // dispatch(setAmountSecondsPassed(0))
   }
 
   const task = watch('task')

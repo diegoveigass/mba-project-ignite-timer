@@ -5,14 +5,12 @@ import { useAppDispatch, useAppSelector } from '../../../../lib/redux/hooks'
 import {
   markCurrentCycleAsFinished,
   setActiveCycle,
-} from '../../../../lib/redux/slices/cycle-slice'
-import {
   setAmountSecondsPassed,
-} from '../../../../lib/redux/slices/countdown-slice'
+} from '../../../../lib/redux/slices/cycle-slice'
 
 export function Countdown() {
   const amountSecondsPassed = useAppSelector(
-    (state) => state.countdown.amountSecondsPassed,
+    (state) => state.cycle.amountSecondsPassed,
   )
   const dispatch = useAppDispatch()
 

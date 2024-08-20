@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { differenceInSeconds } from 'date-fns'
 
 export interface Cycle {
   id: string
@@ -12,6 +13,7 @@ export interface Cycle {
 export interface CycleState {
   cycles: Cycle[]
   activeCycle: Cycle | null
+  amountSecondsPassed: number
 }
 
 const cyclesStoraged = localStorage.getItem('@app/cycles') !== null
@@ -25,6 +27,12 @@ const activeCycleStoraged = localStorage.getItem('@app/active-cycle') !== null
 const initialState = {
   cycles: cyclesStoraged,
   activeCycle: activeCycleStoraged,
+  amountSecondsPassed: activeCycleStoraged
+    ? differenceInSeconds(
+      new Date(),
+      new Date(activeCycleStoraged?.startDate))
+    : 0,
+
 } as CycleState
 
 export const cycleSlice = createSlice({
@@ -44,36 +52,38 @@ export const cycleSlice = createSlice({
       const cycleToInterruptIndex =
         state.cycles.findIndex((cycle) => cycle.id === state.activeCycle?.id)
 
-      if (cycleToInterruptIndex === -1) { return state }
+      if (cycleToInterruptIndex < 0) { return state }
 
       state.cycles[cycleToInterruptIndex].interruptedDate =
       new Date().toISOString()
 
       state.activeCycle = null
+      state.amountSecondsPassed = 0
 
       localStorage.setItem('@app/cycles', JSON.stringify(state.cycles))
       localStorage.setItem(
         '@app/active-cycle', JSON.stringify(state.activeCycle),
       )
-      return state
     },
     markCurrentCycleAsFinished: (state) => {
       const cycleToFinishingIndex =
         state.cycles.findIndex((cycle) => cycle.id === state.activeCycle?.id)
 
-      if (cycleToFinishingIndex === -1) { return state }
+      if (cycleToFinishingIndex < 0) { return state }
 
       state.cycles[cycleToFinishingIndex].finishedDate =
        new Date().toISOString()
 
       localStorage.setItem('@app/cycles', JSON.stringify(state.cycles))
-      return state
     },
     setActiveCycle: (state, action: PayloadAction<Cycle | null>) => {
       state.activeCycle = action.payload
       localStorage.setItem(
         '@app/active-cycle', JSON.stringify(state.activeCycle),
       )
+    },
+    setAmountSecondsPassed: (state, action: PayloadAction<number>) => {
+      state.amountSecondsPassed = action.payload
     },
   },
 })
@@ -83,6 +93,7 @@ export const {
   markCurrentCycleAsFinished,
   markCurrentCycleAsInterrupted,
   setActiveCycle,
+  setAmountSecondsPassed,
 } = cycleSlice.actions
 
 export default cycleSlice.reducer
